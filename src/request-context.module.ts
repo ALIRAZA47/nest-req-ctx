@@ -88,6 +88,7 @@ export class RequestContextModule implements NestModule {
     ];
 
     // Add guard or interceptor based on setup type
+    // When using middleware, also add guard as a safety net
     if (options.setupType === 'guard') {
       providers.push({
         provide: APP_GUARD,
@@ -97,6 +98,13 @@ export class RequestContextModule implements NestModule {
       providers.push({
         provide: APP_INTERCEPTOR,
         useClass: RequestContextInterceptor,
+      });
+    } else {
+      // Default: middleware setup - also add guard as fallback
+      // Guard will check if context exists and skip if already initialized
+      providers.push({
+        provide: APP_GUARD,
+        useClass: RequestContextGuard,
       });
     }
 
@@ -129,6 +137,14 @@ export class RequestContextModule implements NestModule {
         useExisting: RequestContextService,
       },
     ];
+
+    // Note: For async configuration, we can't determine setupType at module definition time
+    // The guard will be added dynamically based on the resolved options
+    // We'll add it here as a safety net - it will check if context exists before initializing
+    providers.push({
+      provide: APP_GUARD,
+      useClass: RequestContextGuard,
+    });
 
     if (options.extraProviders) {
       providers.push(...options.extraProviders);

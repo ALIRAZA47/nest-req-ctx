@@ -14,8 +14,9 @@ import { detectAdapterType } from './adapters';
  * Guard for initializing request context
  * Use when middleware cannot be used or when guard-based initialization is preferred
  *
- * Note: Guards run after middleware, so if using both, context will be initialized twice.
- * Choose either middleware or guard, not both.
+ * When used together with middleware, this guard acts as a safety net:
+ * - If context is already initialized by middleware, it skips re-initialization
+ * - If context is not initialized (e.g., middleware was skipped), it initializes it
  */
 @Injectable()
 export class RequestContextGuard implements CanActivate {
@@ -27,6 +28,13 @@ export class RequestContextGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    // Check if context is already initialized (e.g., by middleware)
+    const existingStore = this.contextService.getStore();
+    if (existingStore) {
+      // Context already exists, no need to re-initialize
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
 
     return new Promise<boolean>((resolve, reject) => {

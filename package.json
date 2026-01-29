@@ -5,12 +5,13 @@
   "author": "KitStack",
   "license": "MIT",
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "require": "./dist/index.js",
-      "import": "./dist/index.js"
+      "import": "./dist/index.mjs"
     }
   },
   "files": [
@@ -18,9 +19,12 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsc",
-    "build:watch": "tsc --watch",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:cov": "jest --coverage",
@@ -78,9 +82,11 @@
     "jest": "^29.7.0",
     "prettier": "^3.2.0",
     "reflect-metadata": "^0.2.1",
+    "rolldown": "^1.0.0-rc.1",
     "rxjs": "^7.8.1",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.3.0"
+    "tsdown": "^0.20.1",
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=16.0.0"

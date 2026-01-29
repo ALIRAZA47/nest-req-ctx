@@ -1,5 +1,5 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { RequestContextModule, RequestContextService, ExpressContextMiddleware } from '../../../src';
+import { RequestContextModule, RequestContextService } from '../../../src';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserMiddleware } from './user.middleware';
@@ -8,10 +8,11 @@ import { AppRequestContext } from './app-context.service';
 @Module({
   imports: [
     // Register the RequestContextModule globally
+    // Middleware and guard are automatically configured - no manual setup needed!
     RequestContextModule.forRoot({
       isGlobal: true,
       adapter: 'express',
-      setupType: 'middleware',
+      setupType: 'middleware', // Middleware initializes context, guard acts as safety net
       // Optional: Custom setup function
       setup: (ctx: RequestContextService, req: any) => {
         // Set a request ID if provided in headers
@@ -25,10 +26,7 @@ import { AppRequestContext } from './app-context.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    // IMPORTANT: Apply RequestContext middleware FIRST to initialize context
-    // Then apply user middleware which depends on the context
-    consumer
-      .apply(ExpressContextMiddleware, UserMiddleware)
-      .forRoutes('*');
+    // Only need to apply user middleware - RequestContext middleware is auto-configured
+    consumer.apply(UserMiddleware).forRoutes('*');
   }
 }
