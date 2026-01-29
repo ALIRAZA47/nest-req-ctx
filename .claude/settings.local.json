@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:papooch.github.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.nestjs.com)",
+      "Bash(npm install)"
+    ]
+  }
+}
