@@ -7,12 +7,10 @@ import { AppRequestContext } from './app-context.service';
 
 @Module({
   imports: [
-    // Register the RequestContextModule globally
-    // Middleware and guard are automatically configured - no manual setup needed!
+    // Register the RequestContextModule globally.
+    // Adapter and middleware setup are auto-detected by default.
     RequestContextModule.forRoot({
       isGlobal: true,
-      adapter: 'express',
-      setupType: 'middleware', // Middleware initializes context, guard acts as safety net
       // Optional: Custom setup function
       setup: (ctx: RequestContextService, req: any) => {
         // Set a request ID if provided in headers

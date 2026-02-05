@@ -21,7 +21,7 @@ export class ExpressContextMiddleware implements NestMiddleware {
     this.contextService.run(() => {
       // Set the request object in context if enabled
       if (this.options?.setRequest !== false) {
-        this.contextService.setRequest(req, this.options?.adapter ?? 'express');
+        this.contextService.setRequest(req, this.options?.adapter ?? 'auto');
       }
 
       // Call custom setup function if provided

@@ -6,11 +6,10 @@ import { UserMiddleware } from './user.middleware';
 
 @Module({
   imports: [
-    // Register the RequestContextModule for Fastify
+    // Register the RequestContextModule for Fastify.
+    // Adapter and middleware setup are auto-detected by default.
     RequestContextModule.forRoot({
       isGlobal: true,
-      adapter: 'fastify', // Explicitly set Fastify adapter
-      setupType: 'middleware',
       setup: (ctx: RequestContextService, req: any) => {
         // Set a request ID if provided in headers
         const requestId = req.headers['x-request-id'] || `req-${Date.now()}`;

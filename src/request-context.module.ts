@@ -3,10 +3,12 @@ import {
   Module,
   MiddlewareConsumer,
   NestModule,
+  Inject,
+  Optional,
   Provider,
   Type,
 } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR, HttpAdapterHost } from '@nestjs/core';
 import { RequestContextService } from './request-context.service';
 import { ExpressContextMiddleware } from './middleware/express.middleware';
 import { FastifyContextMiddleware } from './middleware/fastify.middleware';
@@ -21,6 +23,14 @@ import {
   REQUEST_CONTEXT_MODULE_OPTIONS,
   REQUEST_CONTEXT_SERVICE,
 } from './constants';
+
+const DEFAULT_MODULE_OPTIONS: Required<
+  Pick<RequestContextModuleOptions, 'adapter' | 'setupType' | 'setRequest'>
+> = {
+  adapter: 'auto',
+  setupType: 'middleware',
+  setRequest: true,
+};
 
 /**
  * Dynamic module for request context management
@@ -64,7 +74,22 @@ import {
  */
 @Module({})
 export class RequestContextModule implements NestModule {
-  private static options: RequestContextModuleOptions = {};
+  private readonly options: RequestContextModuleOptions;
+
+  constructor(
+    @Optional()
+    @Inject(REQUEST_CONTEXT_MODULE_OPTIONS)
+    options?: RequestContextModuleOptions,
+    @Optional() private readonly httpAdapterHost?: HttpAdapterHost,
+  ) {
+    this.options = RequestContextModule.applyDefaults(options);
+  }
+
+  private static applyDefaults(
+    options: RequestContextModuleOptions = {},
+  ): RequestContextModuleOptions {
+    return { ...DEFAULT_MODULE_OPTIONS, ...options };
+  }
 
   /**
    * Configures the module with synchronous options
@@ -73,12 +98,12 @@ export class RequestContextModule implements NestModule {
    * @returns A configured DynamicModule
    */
   static forRoot(options: RequestContextModuleOptions = {}): DynamicModule {
-    RequestContextModule.options = options;
+    const normalizedOptions = RequestContextModule.applyDefaults(options);
 
     const providers: Provider[] = [
       {
         provide: REQUEST_CONTEXT_MODULE_OPTIONS,
-        useValue: options,
+        useValue: normalizedOptions,
       },
       RequestContextService,
       {
@@ -89,12 +114,12 @@ export class RequestContextModule implements NestModule {
 
     // Add guard or interceptor based on setup type
     // When using middleware, also add guard as a safety net
-    if (options.setupType === 'guard') {
+    if (normalizedOptions.setupType === 'guard') {
       providers.push({
         provide: APP_GUARD,
         useClass: RequestContextGuard,
       });
-    } else if (options.setupType === 'interceptor') {
+    } else if (normalizedOptions.setupType === 'interceptor') {
       providers.push({
         provide: APP_INTERCEPTOR,
         useClass: RequestContextInterceptor,
@@ -114,7 +139,7 @@ export class RequestContextModule implements NestModule {
       exports: [RequestContextService, REQUEST_CONTEXT_SERVICE],
     };
 
-    if (options.isGlobal !== false) {
+    if (normalizedOptions.isGlobal !== false) {
       return { ...module, global: true };
     }
 
@@ -196,8 +221,7 @@ export class RequestContextModule implements NestModule {
         provide: REQUEST_CONTEXT_MODULE_OPTIONS,
         useFactory: async (...args: any[]) => {
           const config = await options.useFactory!(...args);
-          RequestContextModule.options = config;
-          return config;
+          return RequestContextModule.applyDefaults(config);
         },
         inject: options.inject || [],
       };
@@ -211,8 +235,7 @@ export class RequestContextModule implements NestModule {
       provide: REQUEST_CONTEXT_MODULE_OPTIONS,
       useFactory: async (optionsFactory: RequestContextOptionsFactory) => {
         const config = await optionsFactory.createRequestContextOptions();
-        RequestContextModule.options = config;
-        return config;
+        return RequestContextModule.applyDefaults(config);
       },
       inject,
     };
@@ -223,7 +246,7 @@ export class RequestContextModule implements NestModule {
    * Only applies when setupType is 'middleware' (default)
    */
   configure(consumer: MiddlewareConsumer): void {
-    const options = RequestContextModule.options;
+    const options = this.options;
 
     // Only configure middleware if setupType is 'middleware' (default)
     if (options.setupType && options.setupType !== 'middleware') {
@@ -231,8 +254,9 @@ export class RequestContextModule implements NestModule {
     }
 
     // Select middleware based on adapter type
+    const adapterType = this.resolveAdapterType(options);
     const MiddlewareClass =
-      options.adapter === 'fastify'
+      adapterType === 'fastify'
         ? FastifyContextMiddleware
         : ExpressContextMiddleware;
 
@@ -245,5 +269,16 @@ export class RequestContextModule implements NestModule {
 
     // Apply to all routes
     middlewareConfig.forRoutes('*');
+  }
+
+  private resolveAdapterType(
+    options: RequestContextModuleOptions,
+  ): 'express' | 'fastify' {
+    if (options.adapter && options.adapter !== 'auto') {
+      return options.adapter;
+    }
+
+    const detectedAdapter = this.httpAdapterHost?.httpAdapter?.getType?.();
+    return detectedAdapter === 'fastify' ? 'fastify' : 'express';
   }
 }
