@@ -4,7 +4,7 @@ src/
 # Config files
 tsconfig.json
 tsconfig.build.json
-tsup.config.ts
+tsdown.config.ts
 .eslintrc.js
 .prettierrc
 jest.config.js

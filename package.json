@@ -1,6 +1,6 @@
 {
   "name": "@kitstack/nest-req-ctx",
-  "version": "1.0.0",
+  "version": "1.0.11",
   "description": "Type-safe request context management for NestJS using AsyncLocalStorage with Express and Fastify support",
   "author": "KitStack",
   "license": "MIT",
@@ -23,8 +23,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsdown",
-    "build:watch": "tsdown --watch",
+    "build": "tsup",
+    "build:watch": "tsup --watch",
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test:cov": "jest --coverage",
@@ -45,12 +45,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kitstack/nest-req-ctx"
+    "url": "https://github.com/ALIRAZA47/nest-req-ctx"
   },
   "bugs": {
-    "url": "https://github.com/kitstack/nest-req-ctx/issues"
+    "url": "https://github.com/ALIRAZA47/nest-req-ctx/issues"
   },
-  "homepage": "https://github.com/kitstack/nest-req-ctx#readme",
+  "homepage": "https://github.com/ALIRAZA47/nest-req-ctx#readme",
   "peerDependencies": {
     "@nestjs/common": "^9.0.0 || ^10.0.0",
     "@nestjs/core": "^9.0.0 || ^10.0.0",
@@ -85,7 +85,7 @@
     "rolldown": "^1.0.0-rc.1",
     "rxjs": "^7.8.1",
     "ts-jest": "^29.1.2",
-    "tsdown": "^0.20.1",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
   "engines": {
