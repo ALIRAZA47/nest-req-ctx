@@ -24,7 +24,7 @@ export class FastifyContextMiddleware implements NestMiddleware {
     this.contextService.run(() => {
       // Set the request object in context if enabled
       if (this.options?.setRequest !== false) {
-        this.contextService.setRequest(req, this.options?.adapter ?? 'fastify');
+        this.contextService.setRequest(req, this.options?.adapter ?? 'auto');
       }
 
       // Call custom setup function if provided
@@ -63,7 +63,7 @@ export function createFastifyContextHook(
         try {
           // Set the request object in context if enabled
           if (options?.setRequest !== false) {
-            contextService.setRequest(req, options?.adapter ?? 'fastify');
+            contextService.setRequest(req, options?.adapter ?? 'auto');
           }
 
           // Call custom setup function if provided

@@ -29,8 +29,7 @@ export class RequestContextGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Check if context is already initialized (e.g., by middleware)
-    const existingStore = this.contextService.getStore();
-    if (existingStore) {
+    if (this.contextService.isActive()) {
       // Context already exists, no need to re-initialize
       return true;
     }
