@@ -14,6 +14,18 @@ A type-safe request context management package for NestJS using AsyncLocalStorag
 
 ## Installation
 
+### Option 1: Interactive CLI (recommended for first-time setup)
+
+From your NestJS project directory, run:
+
+```bash
+npx @kitstack/nest-req-ctx
+```
+
+The CLI will ask for your preferences (HTTP adapter, setup type, global module, etc.), install the package, and add `RequestContextModule` to your `app.module.ts`.
+
+### Option 2: Manual install
+
 ```bash
 npm install @kitstack/nest-req-ctx
 ```

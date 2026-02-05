@@ -1,9 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-    entry: ['src/index.ts'],
+    entry: {
+        index: 'src/index.ts',
+        cli: 'cli/index.ts',
+    },
     format: ['cjs', 'esm'],
-    dts: true,
+    dts: { entry: 'src/index.ts' },
     sourcemap: true,
     clean: true,
     treeshake: true,
@@ -16,6 +19,7 @@ export default defineConfig({
         'fastify',
         '@nestjs/platform-express',
         '@nestjs/platform-fastify',
+        'inquirer',
     ],
     target: 'es2021',
     outDir: 'dist',
