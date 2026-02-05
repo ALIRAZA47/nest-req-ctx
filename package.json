@@ -1,6 +1,6 @@
 {
   "name": "@kitstack/nest-req-ctx",
-  "version": "1.1.0",
+  "version": "1.1.01",
   "description": "Type-safe request context management for NestJS using AsyncLocalStorage with Express and Fastify support",
   "author": "KitStack",
   "license": "MIT",

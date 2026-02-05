@@ -85,10 +85,18 @@ function patchAppModule(appModulePath: string, options: CliOptions): void {
   // 1. Add import if missing
   if (!content.includes(PACKAGE_NAME)) {
     const insertImport = `import { RequestContextModule } from '${PACKAGE_NAME}';\n`;
-    const moduleIdx = content.indexOf('@Module(');
-    if (moduleIdx !== -1) {
-      const lineStart = content.lastIndexOf('\n', moduleIdx) + 1;
-      content = content.slice(0, lineStart) + insertImport + content.slice(lineStart);
+    // Find the last import statement to insert after
+    const importRegex = /^import .+;$/gm;
+    let lastImportMatch: RegExpExecArray | null = null;
+    let match: RegExpExecArray | null;
+
+    while ((match = importRegex.exec(content)) !== null) {
+      lastImportMatch = match;
+    }
+
+    if (lastImportMatch) {
+      const insertPos = lastImportMatch.index + lastImportMatch[0].length;
+      content = content.slice(0, insertPos) + "\n" + insertImport + content.slice(insertPos);
     } else {
       content = insertImport + content;
     }
